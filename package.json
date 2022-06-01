@@ -4,6 +4,7 @@
   "description": "building an embeddable js widget with react",
   "main": "index.js",
   "scripts": {
+    "push":"git add . && git commit -m \"auto save\" && git push",
     "build": "NODE_ENV=production webpack-cli --mode production && npm run build-storybook",
     "start": "webpack-dev-server",
     "test": "jest",
