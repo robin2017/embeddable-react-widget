@@ -24,27 +24,27 @@
 
 .docked-widget {
   position: fixed;
-  bottom: 0px;
+  bottom: 10px;
   right: 10px;
-  width: 200px;
+  //  width: 310px;
   z-index: 9999;
 }
 
-.dock {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  width: 180px;
-  border: 1px solid grey;
-  background: white;
-}
+// .dock {
+//   cursor: pointer;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   padding: 10px;
+//   width: 180px;
+//   border: 1px solid grey;
+//   background: white;
+// }
 
 
 .widget {
-  width: 200px;
-  border: 1px solid grey;
+  // width: 300px;
+  // border: 1px solid grey;
   border-bottom: none;
   animation-duration: 0.2s;
   animation-fill-mode: forwards;

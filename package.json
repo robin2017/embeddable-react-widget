@@ -4,13 +4,13 @@
   "description": "building an embeddable js widget with react",
   "main": "index.js",
   "scripts": {
-    "push":"git add . && git commit -m \"auto save\" && git push",
+    "push": "git add . && git commit -m \"auto save\" && git push",
+    "storybook": "start-storybook -p 6006",
     "build": "NODE_ENV=production webpack-cli --mode production && npm run build-storybook",
     "start": "webpack-dev-server",
     "test": "jest",
     "test-update-snapshots": "jest --updateSnapshot",
     "deploy": "npm run build && gh-pages -d dist",
-    "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook -c .storybook -o dist/storybook",
     "lint": "./node_modules/.bin/eslint ."
   },
@@ -115,6 +115,8 @@
     "webpack-serve": "3.2.0"
   },
   "dependencies": {
+    "@alifd/next": "^1.25.40",
+    "moment": "^2.29.3",
     "prop-types": "^15.6.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
