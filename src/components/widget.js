@@ -8,7 +8,7 @@ import "@alifd/next/lib/card/style";
 const iconUrl =
   "https://img.alicdn.com/imgextra/i2/O1CN01cKpD0O22anTxXLCuA_!!6000000007137-55-tps-200-200.svg";
 const CONTAINER_ID = "widget-container";
-const PADDING = 5;
+const PADDING = 10;
 const HIDE_RIGHT = "-40px";
 class Widget extends Component {
   constructor(props) {
