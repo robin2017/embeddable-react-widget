@@ -24,12 +24,23 @@
 
 .docked-widget {
   position: fixed;
-  bottom: 10px;
-  right: 10px;
+  // bottom: 10px;
+  // right: 10px;
   //  width: 310px;
   z-index: 9999;
 }
 
+.dock-body:hover{
+  .hide-icon{
+   visibility: visible;
+  }
+}
+
+.dock-body{
+  .hide-icon{
+    visibility: hidden;
+  }
+}
 // .dock {
 //   cursor: pointer;
 //   display: flex;

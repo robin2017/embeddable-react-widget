@@ -2,9 +2,11 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Transition } from "react-transition-group";
 import "./widget.scss";
-import { Button, Icon, Card } from "@alifd/next";
+import { Icon, Card } from "@alifd/next";
 import "@alifd/next/lib/button/style";
 import "@alifd/next/lib/card/style";
+const iconUrl =
+  "https://img.alicdn.com/imgextra/i2/O1CN01cKpD0O22anTxXLCuA_!!6000000007137-55-tps-200-200.svg";
 class Widget extends Component {
   constructor(props) {
     super(props);
@@ -12,24 +14,35 @@ class Widget extends Component {
     this.state = {
       opened: false,
       showDock: true,
-   
     };
   }
 
-  isMouse =()=>{
-    return this.clickTime && this.clickTime >100
-  }
+  getPx = (num) => {
+    if (num <= 5) num = 5;
+    return num + "px";
+  };
+
+  isMouse = () => {
+    return this.clickTime && this.clickTime > 100;
+  };
 
   handleToggleOpen = () => {
- 
-    if(this.isMouse() && this.state.showDock === true ) return
-   
-    this.setState((prev) => {
+    const boxDom = document.querySelector(".docked-widget");
+    if (Number(boxDom.style.right.slice(0, -2)) < 10) {
+      boxDom.style.right = "10px";
+      return;
+    }
+    if (this.isMouse() && this.state.showDock === true) return;
 
+    this.setState((prev) => {
       let { showDock } = prev;
-      console.log('1111:',showDock)
-      if (!prev.opened && this.clickTime <100) {
+
+      if (!prev.opened && this.clickTime < 100) {
         showDock = false;
+        const boxDom = document.querySelector(".docked-widget");
+        if (Number(boxDom.style.right.slice(0, -2)) < 10) {
+          boxDom.style.right = "10px";
+        }
       }
       return {
         showDock,
@@ -43,19 +56,24 @@ class Widget extends Component {
       showDock: true,
     });
   };
-  componentDidMount() {
-    console.log("componentDidMount");
+  hideDock = (evt) => {
+    evt.stopPropagation();
     const boxDom = document.querySelector(".docked-widget");
-    window.boxDom = boxDom
+    boxDom.style.right = "-40px";
+  };
+  componentDidMount() {
+    const boxDom = document.querySelector(".docked-widget");
+    window.boxDom = boxDom;
     boxDom.onmousedown = (event) => {
       const start = Date.now();
       var evt = event || window.event;
-      var startX = evt.clientX - boxDom.offsetLeft;
-      var startY = evt.clientY - boxDom.offsetTop;
+      var startX = evt.clientX + Number(boxDom.style.right.slice(0, -2));
+      var startY = evt.clientY + Number(boxDom.style.bottom.slice(0, -2));
+
       document.onmousemove = (event) => {
         var evt = event || window.event;
-        boxDom.style.left = evt.clientX - startX + "px";
-        boxDom.style.top = evt.clientY - startY + "px";
+        boxDom.style.right = this.getPx(startX - evt.clientX);
+        boxDom.style.bottom = this.getPx(startY - evt.clientY);
       };
       document.onmouseup = () => {
         document.onmousemove = null;
@@ -67,33 +85,38 @@ class Widget extends Component {
   }
 
   renderBody = () => {
-    console.log("fffffffffff:", this.clickTime);
-    // if(this.state.isMouse) return null
-    // if (this.clickTime && this.clickTime > 100) return null;
     const { showDock } = this.state;
-
     if (!showDock) return "";
 
     return (
-      <Button
-        type="primary"
-        className="dock"
-        onClick={this.handleToggleOpen}
-        onKeyPress={this.handleToggleOpen}
-      >
-        ^ OPEN ^sss
-      </Button>
+      <div style={{ display: "flex" }} className="dock-body">
+        <img
+          src={iconUrl}
+          style={{ width: 48, height: 48, cursor: "pointer" }}
+          draggable={false}
+          onClick={this.handleToggleOpen}
+          onKeyPress={this.handleToggleOpen}
+        ></img>
+        <Icon
+          type="delete-filling"
+          size="small"
+          className="hide-icon"
+          onClick={this.hideDock}
+        />
+      </div>
     );
   };
 
   render() {
- 
     const { opened } = this.state;
     const body = this.renderBody();
-    const { headerText, style, children } = this.props;
+    const { headerText, style, children, initBottom, initRight } = this.props;
 
     return (
-      <div className="docked-widget">
+      <div
+        className="docked-widget"
+        style={{ bottom: initBottom || 10, right: initRight || 10 }}
+      >
         <Transition in={opened} timeout={250} onExited={this.handleWidgetExit}>
           {(status) => {
             return (
