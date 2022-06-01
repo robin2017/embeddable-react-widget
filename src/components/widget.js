@@ -6,15 +6,29 @@ import { Button, Icon, Card } from "@alifd/next";
 import "@alifd/next/lib/button/style";
 import "@alifd/next/lib/card/style";
 class Widget extends Component {
-  state = {
-    opened: false,
-    showDock: true,
-  };
+  constructor(props) {
+    super(props);
+    this.clickTime = null;
+    this.state = {
+      opened: false,
+      showDock: true,
+   
+    };
+  }
+
+  isMouse =()=>{
+    return this.clickTime && this.clickTime >100
+  }
 
   handleToggleOpen = () => {
+ 
+    if(this.isMouse() && this.state.showDock === true ) return
+   
     this.setState((prev) => {
+
       let { showDock } = prev;
-      if (!prev.opened) {
+      console.log('1111:',showDock)
+      if (!prev.opened && this.clickTime <100) {
         showDock = false;
       }
       return {
@@ -29,8 +43,32 @@ class Widget extends Component {
       showDock: true,
     });
   };
+  componentDidMount() {
+    console.log("componentDidMount");
+    const boxDom = document.querySelector(".docked-widget");
+    boxDom.onmousedown = (event) => {
+      const start = Date.now();
+      var evt = event || window.event;
+      var startX = evt.clientX - boxDom.offsetLeft;
+      var startY = evt.clientY - boxDom.offsetTop;
+      document.onmousemove = (event) => {
+        var evt = event || window.event;
+        boxDom.style.left = evt.clientX - startX + "px";
+        boxDom.style.top = evt.clientY - startY + "px";
+      };
+      document.onmouseup = () => {
+        document.onmousemove = null;
+        document.onmouseup = null;
+        const end = Date.now();
+        this.clickTime = end - start;
+      };
+    };
+  }
 
   renderBody = () => {
+    console.log("fffffffffff:", this.clickTime);
+    // if(this.state.isMouse) return null
+    // if (this.clickTime && this.clickTime > 100) return null;
     const { showDock } = this.state;
 
     if (!showDock) return "";
@@ -48,15 +86,15 @@ class Widget extends Component {
   };
 
   render() {
+ 
     const { opened } = this.state;
     const body = this.renderBody();
-    const { headerText,style, children } = this.props;
+    const { headerText, style, children } = this.props;
 
     return (
       <div className="docked-widget">
         <Transition in={opened} timeout={250} onExited={this.handleWidgetExit}>
           {(status) => {
- 
             return (
               <div className={`widget widget-${status}`}>
                 <Card free style={style}>
@@ -71,11 +109,8 @@ class Widget extends Component {
                       />
                     }
                   />
-                  <Card.Content>
-                    {children}
-                  </Card.Content>
+                  <Card.Content>{children}</Card.Content>
                 </Card>
-                
               </div>
             );
           }}
