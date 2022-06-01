@@ -7,29 +7,41 @@ import "@alifd/next/lib/button/style";
 import "@alifd/next/lib/card/style";
 const iconUrl =
   "https://img.alicdn.com/imgextra/i2/O1CN01cKpD0O22anTxXLCuA_!!6000000007137-55-tps-200-200.svg";
+const CONTAINER_ID = "widget-container";
+const PADDING = 5;
+const HIDE_RIGHT = "-40px";
 class Widget extends Component {
   constructor(props) {
     super(props);
-    this.clickTime = null;
+    this.clickTime = 0;
+    this.domContainer = null;
+    this.bottom = "10px";
+    this.right = "10px";
     this.state = {
       opened: false,
       showDock: true,
     };
   }
-
-  getPx = (num) => {
-    if (num <= 5) num = 5;
+  pxToStr = (num, minValue) => {
+    if (typeof num === "string") num = Number(str.slice(0, -2));
+    if (num < minValue) {
+      return minValue + "px";
+    }
     return num + "px";
   };
-
+  pxToNum = (str) => {
+    if (typeof str === "number") return str;
+    return Number(str.slice(0, -2));
+  };
   isMouse = () => {
-    return this.clickTime && this.clickTime > 100;
+    return this.clickTime && this.clickTime > 200;
   };
 
   handleToggleOpen = () => {
-    const boxDom = document.querySelector(".docked-widget");
-    if (Number(boxDom.style.right.slice(0, -2)) < 10) {
-      boxDom.style.right = "10px";
+    if (
+      this.pxToNum(this.domContainer.style.right) < this.pxToNum(this.right)
+    ) {
+      this.domContainer.style.right = this.right;
       return;
     }
     if (this.isMouse() && this.state.showDock === true) return;
@@ -37,12 +49,8 @@ class Widget extends Component {
     this.setState((prev) => {
       let { showDock } = prev;
 
-      if (!prev.opened && this.clickTime < 100) {
+      if (!prev.opened && !this.isMouse()) {
         showDock = false;
-        const boxDom = document.querySelector(".docked-widget");
-        if (Number(boxDom.style.right.slice(0, -2)) < 10) {
-          boxDom.style.right = "10px";
-        }
       }
       return {
         showDock,
@@ -58,22 +66,23 @@ class Widget extends Component {
   };
   hideDock = (evt) => {
     evt.stopPropagation();
-    const boxDom = document.querySelector(".docked-widget");
-    boxDom.style.right = "-40px";
+    this.domContainer.style.right = HIDE_RIGHT;
   };
   componentDidMount() {
-    const boxDom = document.querySelector(".docked-widget");
-    window.boxDom = boxDom;
-    boxDom.onmousedown = (event) => {
+    this.domContainer = document.getElementById(CONTAINER_ID);
+    this.domContainer.onmousedown = (evt) => {
       const start = Date.now();
-      var evt = event || window.event;
-      var startX = evt.clientX + Number(boxDom.style.right.slice(0, -2));
-      var startY = evt.clientY + Number(boxDom.style.bottom.slice(0, -2));
-
-      document.onmousemove = (event) => {
-        var evt = event || window.event;
-        boxDom.style.right = this.getPx(startX - evt.clientX);
-        boxDom.style.bottom = this.getPx(startY - evt.clientY);
+      var startX = evt.clientX + this.pxToNum(this.domContainer.style.right);
+      var startY = evt.clientY + this.pxToNum(this.domContainer.style.bottom);
+      document.onmousemove = (e) => {
+        this.domContainer.style.right = this.pxToStr(
+          startX - e.clientX,
+          PADDING
+        );
+        this.domContainer.style.bottom = this.pxToStr(
+          startY - e.clientY,
+          PADDING
+        );
       };
       document.onmouseup = () => {
         document.onmousemove = null;
@@ -86,17 +95,15 @@ class Widget extends Component {
 
   renderBody = () => {
     const { showDock } = this.state;
-    if (!showDock) return "";
-
+    if (!showDock) return null;
     return (
-      <div style={{ display: "flex" }} className="dock-body">
+      <div className="dock-body">
         <img
           src={iconUrl}
-          style={{ width: 48, height: 48, cursor: "pointer" }}
+          className="icon"
           draggable={false}
           onClick={this.handleToggleOpen}
-          onKeyPress={this.handleToggleOpen}
-        ></img>
+        />
         <Icon
           type="delete-filling"
           size="small"
@@ -110,20 +117,21 @@ class Widget extends Component {
   render() {
     const { opened } = this.state;
     const body = this.renderBody();
-    const { headerText, style, children, initBottom, initRight } = this.props;
-
+    const { title, style = {}, children } = this.props;
+    this.bottom = style.bottom ? this.pxToStr(style.bottom) : this.bottom;
+    this.right = style.right ? this.pxToStr(style.right) : this.right;
     return (
       <div
-        className="docked-widget"
-        style={{ bottom: initBottom || 10, right: initRight || 10 }}
+        id="widget-container"
+        style={{ bottom: this.bottom, right: this.right }}
       >
-        <Transition in={opened} timeout={250} onExited={this.handleWidgetExit}>
+        <Transition in={opened} timeout={10} onExited={this.handleWidgetExit}>
           {(status) => {
             return (
               <div className={`widget widget-${status}`}>
                 <Card free style={style}>
                   <Card.Header
-                    title={headerText}
+                    title={title}
                     extra={
                       <Icon
                         type="close"
@@ -146,15 +154,15 @@ class Widget extends Component {
 }
 
 Widget.propTypes = {
-  headerText: PropTypes.string,
-  bodyText: PropTypes.string,
-  footerText: PropTypes.string,
+  title: PropTypes.string,
+  children: PropTypes.object,
+  style: PropTypes.object,
 };
 
 Widget.defaultProps = {
-  headerText: "Header",
-  bodyText: "Body",
-  footerText: "Footer",
+  title: "标题",
+  style: {},
+  children: <div>示例</div>,
 };
 
 export default Widget;
