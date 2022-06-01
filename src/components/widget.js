@@ -46,6 +46,7 @@ class Widget extends Component {
   componentDidMount() {
     console.log("componentDidMount");
     const boxDom = document.querySelector(".docked-widget");
+    window.boxDom = boxDom
     boxDom.onmousedown = (event) => {
       const start = Date.now();
       var evt = event || window.event;
