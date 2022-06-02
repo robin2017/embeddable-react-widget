@@ -5,7 +5,7 @@ import "./widget.scss";
 import { Icon, Card } from "@alifd/next";
 import "@alifd/next/lib/button/style";
 import "@alifd/next/lib/card/style";
-const iconUrl =
+const defaultDockImg =
   "https://img.alicdn.com/imgextra/i2/O1CN01cKpD0O22anTxXLCuA_!!6000000007137-55-tps-200-200.svg";
 const CONTAINER_ID = "widget-container";
 const PADDING = 10;
@@ -93,13 +93,13 @@ class Widget extends Component {
     };
   }
 
-  renderBody = () => {
+  renderBody = (dockImg) => {
     const { showDock } = this.state;
     if (!showDock) return null;
     return (
       <div className="dock-body">
         <img
-          src={iconUrl}
+          src={dockImg || defaultDockImg}
           className="icon"
           draggable={false}
           onClick={this.handleToggleOpen}
@@ -116,8 +116,9 @@ class Widget extends Component {
 
   render() {
     const { opened } = this.state;
-    const body = this.renderBody();
-    const { title, style = {}, children } = this.props;
+
+    const { title, style = {}, dockImg, children } = this.props;
+    const body = this.renderBody(dockImg);
     this.bottom = style.bottom ? this.pxToStr(style.bottom) : this.bottom;
     this.right = style.right ? this.pxToStr(style.right) : this.right;
     return (
@@ -155,12 +156,14 @@ class Widget extends Component {
 
 Widget.propTypes = {
   title: PropTypes.string,
+  dockImg: PropTypes.string,
   children: PropTypes.object,
   style: PropTypes.object,
 };
 
 Widget.defaultProps = {
   title: "标题",
+  dockImg: '',
   style: {},
   children: <div>示例</div>,
 };
